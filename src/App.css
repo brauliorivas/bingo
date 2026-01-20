@@ -253,6 +253,42 @@
   border: 2px solid #444;
 }
 
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.transmission-status {
+  display: flex;
+  align-items: center;
+}
+
+.loading-status {
+  padding: 0.75rem 1.5rem;
+  background: #2a2a2a;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 1rem;
+  border: 1px solid #444;
+}
+
+.play-btn {
+  padding: 0.75rem 2rem;
+  background: #22c55e;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.play-btn:hover {
+  background: #16a34a;
+}
+
 .add-card-btn {
   padding: 0.75rem 1.5rem;
   background: #646cff;

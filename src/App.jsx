@@ -34,6 +34,7 @@ function App() {
   const [showLoadModal, setShowLoadModal] = useState(false);
   const [manualInput, setManualInput] = useState('');
   const [manualCardId, setManualCardId] = useState('');
+  const [isTransmitting, setIsTransmitting] = useState(false);
 
   useEffect(() => {
     if (socketRef.current) return;
@@ -55,6 +56,68 @@ function App() {
       setShowLoadModal(true);
     }
   }, [showStartModal, bingoCards.length]);
+
+  // Placeholder function - you'll implement the actual socket sending logic
+  function sendBingoCard(card) {
+    // TODO: Implement socket sending logic here
+    // This is just a placeholder for UI logic
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      // You'll implement this
+      console.log(card);
+    }
+  }
+
+  // Calculate transmitted count from cards
+  const transmittedCount = bingoCards.filter(card => card.transmitted === true).length;
+
+  // Effect to handle card transmission - only trigger when new cards are added
+  useEffect(() => {
+    if (bingoCards.length === 0) {
+      return;
+    }
+
+    // Check if there are untransmitted cards
+    const hasUntransmitted = bingoCards.some(card => !card.transmitted);
+
+    // Start transmitting if there are untransmitted cards and we're not already transmitting
+    if (hasUntransmitted && !isTransmitting) {
+      setIsTransmitting(true);
+      transmitNextCard();
+    }
+  }, [bingoCards.length]);
+
+  function transmitNextCard() {
+    // Get current cards from state to avoid stale closures
+    setBingoCards(prevCards => {
+      // Find the first card that hasn't been transmitted
+      const untransmittedIndex = prevCards.findIndex(card => !card.transmitted);
+
+      if (untransmittedIndex === -1) {
+        setIsTransmitting(false);
+        return prevCards;
+      }
+
+      const card = prevCards[untransmittedIndex];
+      sendBingoCard(card);
+
+      // Mark card as transmitted
+      const updatedCards = prevCards.map((c, idx) => 
+        idx === untransmittedIndex ? { ...c, transmitted: true } : c
+      );
+
+      // Continue with next card after a small delay
+      setTimeout(() => {
+        const hasMoreUntransmitted = updatedCards.some(card => !card.transmitted);
+        if (hasMoreUntransmitted) {
+          transmitNextCard();
+        } else {
+          setIsTransmitting(false);
+        }
+      }, 100);
+
+      return updatedCards;
+    });
+  }
 
   function registerUser(formData) {
     if (!socketReady) return;
@@ -82,7 +145,7 @@ function App() {
       if (words.length === 0) continue;
 
       const language = detectLanguage(words.length);
-      cards.push({ id, words, language });
+      cards.push({ id, words, language, transmitted: false });
     }
 
     return cards;
@@ -97,6 +160,7 @@ function App() {
       const content = e.target.result;
       const newCards = parseTxtFile(content);
       if (newCards.length > 0) {
+        // Add new cards (they have transmitted: false by default)
         setBingoCards([...bingoCards, ...newCards]);
         setShowLoadModal(false);
       }
@@ -115,7 +179,8 @@ function App() {
     if (words.length === 0) return;
 
     const language = detectLanguage(words.length);
-    const card = { id: manualCardId.trim(), words, language };
+    const card = { id: manualCardId.trim(), words, language, transmitted: false };
+    // Add new card (it has transmitted: false by default)
     setBingoCards([...bingoCards, card]);
     setManualInput('');
     setManualCardId('');
@@ -234,9 +299,24 @@ function App() {
               <h2>Current Word</h2>
               <div className="current-word">{currentWord || 'Waiting...'}</div>
             </div>
-            <button onClick={() => setShowLoadModal(true)} className="add-card-btn">
-              + Add Card
-            </button>
+            <div className="top-bar-right">
+              {bingoCards.length > 0 && (
+                <div className="transmission-status">
+                  {transmittedCount < bingoCards.length ? (
+                    <div className="loading-status">
+                      {transmittedCount}/{bingoCards.length} bingo cards loaded
+                    </div>
+                  ) : (
+                    <button onClick={() => {/* TODO: Handle play */}} className="play-btn">
+                      PLAY
+                    </button>
+                  )}
+                </div>
+              )}
+              <button onClick={() => setShowLoadModal(true)} className="add-card-btn">
+                + Add Card
+              </button>
+            </div>
           </div>
 
           <div className="main-content">
