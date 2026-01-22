@@ -559,6 +559,41 @@
   margin-top: 2rem;
 }
 
+.round-info {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #2a2a2a;
+  border-radius: 8px;
+}
+
+.round-language {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.round-language .language-name {
+  color: #646cff;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.continue-btn {
+  padding: 0.75rem 2rem;
+  background: #22c55e;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 2rem;
+}
+
+.continue-btn:hover {
+  background: #16a34a;
+}
+
 /* Scrollbar Styles */
 .cards-list::-webkit-scrollbar,
 .main-card-area::-webkit-scrollbar {

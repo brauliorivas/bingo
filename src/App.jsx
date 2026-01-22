@@ -61,6 +61,9 @@ function App() {
   const [gameStarted, setGameStarted] = useState(false);
   const [showWinnersModal, setShowWinnersModal] = useState(false);
   const [winners, setWinners] = useState(null);
+  const [showRoundWinnersModal, setShowRoundWinnersModal] = useState(false);
+  const [roundWinners, setRoundWinners] = useState(null);
+  const [roundLanguage, setRoundLanguage] = useState('');
 
   useEffect(() => {
     if (!showStartModal && bingoCards.length === 0) {
@@ -158,6 +161,13 @@ function App() {
         break;
       case 'round_end':
         setCurrentWord('');
+        // Show round winners if there are any
+        if (data.winners && data.winners.length > 0) {
+          setRoundWinners(data.winners);
+          setRoundLanguage(data.language);
+          setShowRoundWinnersModal(true);
+        }
+        // Clear current language after showing winners
         setCurrentLanguage('');
         break;
       case 'game_end':
@@ -504,6 +514,47 @@ function App() {
         </div>
       )}
 
+      {showRoundWinnersModal && roundWinners && (
+        <div className="modal-overlay">
+          <div className="modal winners-modal">
+            <div className="modal-header">
+              <h2>Round Winner{roundWinners.length > 1 ? 's' : ''}!</h2>
+            </div>
+            <div className="winners-content">
+              <div className="round-info">
+                <p className="round-language">Language: <span className="language-name">{roundLanguage.toUpperCase()}</span></p>
+              </div>
+              {roundWinners.length === 1 ? (
+                <div className="single-winner">
+                  <h3>Winner!</h3>
+                  <p>{roundWinners[0]}</p>
+                </div>
+              ) : (
+                <div className="draw">
+                  <h3>Draw!</h3>
+                  <p>{roundWinners.length} winners:</p>
+                  <ul>
+                    {roundWinners.map((winner, idx) => (
+                      <li key={idx}>{winner}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <button 
+                onClick={() => {
+                  setShowRoundWinnersModal(false);
+                  setRoundWinners(null);
+                  setRoundLanguage('');
+                }} 
+                className="continue-btn"
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showWinnersModal && winners && (
         <div className="modal-overlay">
           <div className="modal winners-modal">
@@ -513,12 +564,12 @@ function App() {
             <div className="winners-content">
               {winners.length === 1 ? (
                 <div className="single-winner">
-                  <h3>Winner!</h3>
+                  <h3>Final Winner!</h3>
                   <p>{winners[0]}</p>
                 </div>
               ) : (
                 <div className="draw">
-                  <h3>Draw!</h3>
+                  <h3>Final Draw!</h3>
                   <p>{winners.length} winners:</p>
                   <ul>
                     {winners.map((winner, idx) => (
